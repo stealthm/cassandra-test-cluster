@@ -1,0 +1,80 @@
+version: '3.8'
+    
+services:
+  cassandra1:
+    networks:
+        app_net:
+            ipv4_address: 192.168.1.200
+    container_name: cassandra1
+    image: cassandra:5.0.2
+    volumes:
+      - cassandra-node1:/var/lib/cassandra/data
+    environment:
+      - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
+      - CASSANDRA_CLUSTER_NAME=Cassandra_Cluster
+      - CASSANDRA_DC=datacenter1
+      - CASSANDRA_SEEDS=cassandra1,cassandra2,cassandra3
+    restart:
+      on-failure
+    healthcheck:
+      test: ["CMD-SHELL", "nodetool status"]
+      interval: 1m
+      start_period: 2m
+      timeout: 10s
+      retries: 3
+
+  cassandra2:
+    networks:
+        app_net:
+            ipv4_address: 192.168.1.201
+    container_name: cassandra2
+    image: cassandra:5.0.2
+    volumes:
+      - cassandra-node2:/var/lib/cassandra/data
+    environment:
+      - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
+      - CASSANDRA_CLUSTER_NAME=Cassandra_Cluster
+      - CASSANDRA_DC=datacenter1
+    restart:
+      on-failure
+    healthcheck:
+      test: ["CMD-SHELL", "nodetool status"]
+      interval: 1m
+      start_period: 2m
+      timeout: 10s
+      retries: 3
+
+  cassandra3:
+    networks:
+        app_net:
+            ipv4_address: 192.168.1.202
+    container_name: cassandra3
+    image: cassandra:5.0.2
+    volumes:
+      - cassandra-node3:/var/lib/cassandra/data
+    environment:
+      - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
+      - CASSANDRA_CLUSTER_NAME=Cassandra_Cluster
+      - CASSANDRA_DC=datacenter1
+    restart:
+      on-failure
+    healthcheck:
+      test: ["CMD-SHELL", "nodetool status"]
+      interval: 1m
+      start_period: 2m
+      timeout: 10s
+      retries: 3
+
+networks:
+  app_net:
+    driver: macvlan
+    driver_opts:
+      parent: eth1
+    ipam:
+      config:
+        - subnet: 192.168.1.0/24
+          gateway: 192.168.1.1
+volumes:
+  cassandra-node1:
+  cassandra-node2:
+  cassandra-node3:
